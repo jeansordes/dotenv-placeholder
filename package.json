@@ -15,5 +15,9 @@
     ],
     "bin": {
         "dotenv-build": "bin/exec-build.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jeansordes/dotenv-placeholder.git"
     }
 }
