@@ -20,14 +20,16 @@ const getData = path => {
     return [txt, json, Object.keys(json)];
 };
 
-const build = () => {
+const build = (args) => {
     // create files if not found
-    createIfNotFound('.env');
-    createIfNotFound('.env.placeholder');
+    const envPath = args && args.path ? args.path : envPath;
+    const envP_Path = envPath + '.placeholder';
+    createIfNotFound(envPath);
+    createIfNotFound(envP_Path);
 
     // keys found in .env.placeholder and not in .env ? added to .env
-    let [plhlTXT, plhlJSON, plhlKeys] = getData('.env.placeholder'),
-        [envTXT, envJSON, envKeys] = getData('.env'),
+    let [plhlTXT, plhlJSON, plhlKeys] = getData(envP_Path),
+        [envTXT, envJSON, envKeys] = getData(envPath),
         json2add = {},
         json2replace = {};
     for (let i = 0; i < plhlKeys.length; i++) {
@@ -49,12 +51,12 @@ const build = () => {
                 return key + '=' + json2replace[key];
             }
         }).join('\n');
-        fs.writeFileSync('.env', output + ((output.trim() == '' || Object.keys(json2add).length == 0) ? '' : '\n') + json2string(json2add));
+        fs.writeFileSync(envPath, output + ((output.trim() == '' || Object.keys(json2add).length == 0) ? '' : '\n') + json2string(json2add));
         console.log(blue, 'info', '.env.placeholder → .env : ', [...keys2replace, ...Object.keys(json2add)]);
     }
 
     // keys found in .env and not in .env.placeholder ? added to .env.placeholder (without the values)
-    [envTXT, envJSON, envKeys] = getData('.env');
+    [envTXT, envJSON, envKeys] = getData(envPath);
     json2add = {};
     for (let i = 0; i < envKeys.length; i++) {
         if (!plhlKeys.includes(envKeys[i])) {
@@ -62,7 +64,7 @@ const build = () => {
         }
     }
     if (Object.keys(json2add).length > 0) {
-        fs.appendFileSync('.env.placeholder', (plhlTXT.trim() == '' ? '' : '\n') + json2string(json2add));
+        fs.appendFileSync(envP_Path, (plhlTXT.trim() == '' ? '' : '\n') + json2string(json2add));
         console.log(blue, 'info', '.env.placeholder ← .env : ', Object.keys(json2add));
     }
 
@@ -75,7 +77,7 @@ const build = () => {
 
 module.exports = {
     ...dotenv, config: (...args) => {
-        build();
+        build(...args);
         return dotenv.config(...args);
     }
 };

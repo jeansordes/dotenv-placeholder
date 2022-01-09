@@ -6,9 +6,13 @@ It makes your life easier with your git repository if you decide to add `.env` t
 
 # What does it do ?
 
-This package adds a file called `.env.placeholder` at the root level that will contain a safe version of your `.env` file (it will get only the keys of `.env`)
+If no `.env.placeholder` file is found, it will create one next to your `.env` file, and will put the keys indicated in your `.env` file, without the values.
 
-If you want, you can add default values to the `.env.placeholder` and it will add this values to the `.env` file (except if there is already a value given in `.env` for this key)
+If no `.env` file is found, it will create one next to your `.env.placeholder` file, and will copy in it the content found in `.env.placeholder`
+
+It warns you if you have empty fields in `.env`
+
+You can add default values to the `.env.placeholder` and it will add this values to the `.env` file __EXCEPTED__ if there is already a value given in `.env` for this key
 
 ## Example
 ```conf
@@ -51,10 +55,11 @@ dotenv.config(); // this will trigger the build
 
 This is my prefered way, because when someone will clone your project, and then run `npm i`, it will automatically create the `.env` file, allowing the person to customize the `.env` before running your project
 
-```json
+```jsonc
 {
     "scripts": {
-        "postinstall": "dotenv-build"
+        "postinstall": "dotenv-build --path=./config/.env"
+        /* --path is optionnal */
     }
 }
 ```
