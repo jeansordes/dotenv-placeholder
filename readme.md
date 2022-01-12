@@ -14,6 +14,8 @@ It warns you if you have empty fields in `.env`
 
 You can add default values to the `.env.placeholder` and it will add this values to the `.env` file __EXCEPTED__ if there is already a value given in `.env` for this key
 
+You can add a `<random:♥>` value in `.env.placeholder` (where `♥` represents the length of the random string you want to generate), or just `<random>`, which is equivalent to `<random:30>`.
+
 ## Example
 ```conf
 # .env
@@ -22,6 +24,7 @@ KEY=secret_value
 # .env.placeholder
 ADDITIONAL_KEY=
 KEY_WITH_DEFAULT=default_value
+A_RANDOM_KEY=<random>
 ```
 Will transform into :
 ```conf
@@ -29,16 +32,18 @@ Will transform into :
 KEY=secret_value
 ADDITIONAL_KEY=
 KEY_WITH_DEFAULT=default_value
+A_RANDOM_KEY=k7RDE_aBJxAE==qchk720DH-4Rzc
 
 # .env.placeholder
 ADDITIONAL_KEY=
 KEY_WITH_DEFAULT=default_value
+A_RANDOM_KEY=<random:28>
 KEY=
 ```
 
 And it will produce the following messages in the console :
 ```
-info .env.placeholder → .env :  [ 'ADDITIONAL_KEY', 'KEY_WITH_DEFAULT' ]
+info .env.placeholder → .env :  [ 'ADDITIONAL_KEY', 'KEY_WITH_DEFAULT', 'A_RANDOM_KEY' ]
 info .env.placeholder ← .env :  [ 'KEY' ]
 warning empty keys found in .env : [ 'ADDITIONAL_KEY' ]
 ```
@@ -58,8 +63,8 @@ This is my prefered way, because when someone will clone your project, and then 
 ```jsonc
 {
     "scripts": {
-        "postinstall": "dotenv-build --path=./config/.env"
-        /* --path is optionnal */
+        "postinstall": "dotenv-build --path=./config/.env --placeholderPath=./config/.env.placeholder"
+        /* all options are optionnal */
     }
 }
 ```
