@@ -2,7 +2,7 @@ const dotenv = require('dotenv'),
     fs = require('fs'),
     pathLib = require('path'),
     { yellow, blue } = require('./utils').colors;
-const { randomString, getFileData, createFile } = require('./utils');
+const { randomString, getFileData, createFile, findCLIArgValue } = require('./utils');
 
 const get_plhl_path = (envPath, additional_plhl_path) => {
     const plhlPaths = [
@@ -29,8 +29,13 @@ const build = (args) => {
     // create files if not found
     const envPath = args && args.path ? args.path : '.env';
     const plhlPath = get_plhl_path(envPath, args.placeholderPath);
-    createFile(envPath, '', { recreateIfFound: false, verbose: true });
-    createFile(plhlPath, '', { recreateIfFound: false, verbose: true });
+    const verbose = process.env.VERBOSE || findCLIArgValue(['-v', '--verbose']).isFound;
+    const fileCreationOptions = {
+        recreateIfFound: false,
+        verbose: verbose,
+    };
+    createFile(envPath, '', fileCreationOptions);
+    createFile(plhlPath, '', fileCreationOptions);
 
     const envFilename = pathLib.basename(envPath),
         plhlFilename = pathLib.basename(plhlPath);
@@ -61,7 +66,7 @@ const build = (args) => {
             }
         }).join('\n');
         fs.writeFileSync(envPath, output + ((output.trim() == '' || Object.keys(json2add).length == 0) ? '' : '\n') + json2string(json2add));
-        console.log(blue, 'info', `${plhlFilename} → ${envFilename} : `, [...keys2replace, ...Object.keys(json2add)]);
+        if (verbose) console.log(blue, 'info', `${plhlFilename} → ${envFilename} : `, [...keys2replace, ...Object.keys(json2add)]);
     }
 
     // keys found in .env and not in .placeholder.env ? added to .placeholder.env (without the values)
@@ -74,7 +79,7 @@ const build = (args) => {
     }
     if (Object.keys(json2add).length > 0) {
         fs.appendFileSync(plhlPath, (plhlTXT.trim() == '' ? '' : '\n') + json2string(json2add));
-        console.log(blue, 'info', `${plhlFilename} ← ${envFilename} : `, Object.keys(json2add));
+        if (verbose) console.log(blue, 'info', `${plhlFilename} ← ${envFilename} : `, Object.keys(json2add));
     }
 
     // check if there is empty keys in .env
