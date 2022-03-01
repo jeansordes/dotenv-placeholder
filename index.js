@@ -28,7 +28,7 @@ const parse_plhl2env_value = value => {
 const build = (args) => {
     // create files if not found
     const envPath = args && args.path ? args.path : '.env';
-    const plhlPath = get_plhl_path(envPath, args.placeholderPath);
+    const plhlPath = args && args.placeholderPath ? get_plhl_path(envPath, args.placeholderPath) : get_plhl_path(envPath);
     const verbose = process.env.VERBOSE || findCLIArgValue(['-v', '--verbose']).isFound;
     const fileCreationOptions = {
         recreateIfFound: false,
